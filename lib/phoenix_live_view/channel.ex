@@ -853,13 +853,17 @@ defmodule Phoenix.LiveView.Channel do
                 GenServer.reply(from, {:error, %{reason: "unauthorized"}})
                 {:stop, :shutdown, :no_state}
 
-              {:error, _reason} ->
+              {:error, reason} ->
+                Logger.error("!!!!!!111 reason: #{inspect(reason)}")
+
                 GenServer.reply(from, {:error, %{reason: "stale"}})
                 {:stop, :shutdown, :no_state}
             end
         end
 
-      {:error, _reason} ->
+      {:error, reason} ->
+        Logger.error("!!!!!!222 reason: #{inspect(reason)}")
+
         GenServer.reply(from, {:error, %{reason: "stale"}})
         {:stop, :shutdown, :no_state}
     end
@@ -880,7 +884,9 @@ defmodule Phoenix.LiveView.Channel do
   rescue
     # If it fails, then the only possible answer is that the live
     # view has been renamed. So we force the client to reconnect.
-    _ -> {:error, :stale}
+    error ->
+      Logger.error("!!!!!!333 rescue in load_live_view error: #{inspect(error)} view: #{inspect(view)}")
+      {:error, :stale}
   end
 
   defp verified_mount(%Session{} = verified, config, route, url, params, from, phx_socket, connect_info) do
@@ -952,6 +958,7 @@ defmodule Phoenix.LiveView.Channel do
         |> reply_mount(from, verified, route)
 
       {:error, :noproc} ->
+        Logger.error("!!!!!!444  error: {:error, :noproc}")
         GenServer.reply(from, {:error, %{reason: "stale"}})
         {:stop, :shutdown, :no_state}
     end
