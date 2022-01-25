@@ -57,8 +57,12 @@ defmodule Phoenix.LiveView.Session do
       {:error, :expired}
   """
   def verify_session(endpoint, topic, session_token, static_token) do
+    IO.error("verify_session verify_token:#{inspect(Static.verify_token(endpoint, session_token))}")
+
     with {:ok, %{id: id} = session} <- Static.verify_token(endpoint, session_token),
-         :ok <- verify_topic(topic, id),
+          IO.error("verify_session verify_topic:#{verify_topic(topic, id)}")
+          :ok <- verify_topic(topic, id),
+          IO.error("verify_session verify_static_token:#{verify_static_token(endpoint, id, static_token)}")
          {:ok, static} <- verify_static_token(endpoint, id, static_token) do
       merged_session = Map.merge(session, static)
       {live_session_name, vsn} = merged_session[:live_session] || {nil, nil}
