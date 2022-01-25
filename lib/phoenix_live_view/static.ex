@@ -22,10 +22,16 @@ defmodule Phoenix.LiveView.Static do
 
   def render(_other, _assigns), do: nil
 
+  require Logger
+
   @doc """
   Verifies a LiveView token.
   """
   def verify_token(endpoint, token) do
+    Logger.error(
+      "token: #{inspect(token)}, endpoint:#{inspect(endpoint)}, salt: #{inspect(Utils.salt!(endpoint))}"
+    )
+
     case Phoenix.Token.verify(endpoint, Utils.salt!(endpoint), token, max_age: @max_session_age) do
       {:ok, {@token_vsn, term}} -> {:ok, term}
       {:ok, _} -> {:error, :outdated}
@@ -198,7 +204,6 @@ defmodule Phoenix.LiveView.Static do
 
     session_token =
       if sticky?, do: sign_nested_session(parent, socket, view, to_sign_session, sticky?)
-
 
     if redir = socket.redirected do
       throw({:phoenix, :child_redirect, redir, Utils.get_flash(socket)})
